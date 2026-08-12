@@ -34,7 +34,7 @@ export default class Game {
 
         this.grassImage = document.querySelector("#grass");
 		
-	this.backgroundImage = document.querySelector('#background');
+		this.backgroundImage = document.querySelector('#background');
 
         this.gamestate = GAMESTATE.MENU;
         
