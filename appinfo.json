@@ -1,0 +1,11 @@
+{
+    "id": "com.manthock.duckhunt",
+    "version": "1.0.0",
+    "vendor": "manthock",
+    "type": "web",
+    "main": "index.html",
+    "title": "Duck Hunt",
+    "icon": "icon.png",
+    "splashBackground": "splash.png",
+    "disableBackHistoryAPI": true
+}
