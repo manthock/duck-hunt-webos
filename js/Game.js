@@ -69,10 +69,13 @@ export default class Game {
 
     newRound() {
         this.gameStats.checked = false;
+		
         this.timer = 0;
-
+		
         this.canShoot = false;
-
+		
+		this.runLaugh = true;
+		
         this.dog.drawGrass = false;
 
         this.display.displayCurrentRound = true;
