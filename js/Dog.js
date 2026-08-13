@@ -135,7 +135,7 @@ export default class Dog {
 
     laugh() {
 
-        if (!this.game.sounds.duckFlapping.source) {
+        if (this.game.sounds.duckFlapping.source) {
             this.game.sounds.duckFlapping.stop();
         }
 
