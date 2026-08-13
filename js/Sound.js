@@ -74,6 +74,8 @@ export default class Sound {
 
         this.source = null;
 
+        this.playGeneration = 0;
+
         /*
          * Start loading asynchronously.
          * This MUST NOT block the game.
@@ -82,14 +84,17 @@ export default class Sound {
     }
 
     play() {
-        const context = getAudioContext();
+        const generation = ++this.playGeneration;
 
-        const resume = context.state === "suspended" ? context.resume() : Promise.resolve();
+        const resumePromise =
+            audioContext.state === "suspended"
+                ? audioContext.resume()
+                : Promise.resolve();
 
-        resume
+        return resumePromise
             .then(() => loadBuffer(this.src))
             .then((buffer) => {
-                if (!buffer) {
+                if (generation !== this.playGeneration) {
                     return;
                 }
 
@@ -101,46 +106,38 @@ export default class Sound {
                     }
                 }
 
-                const source = context.createBufferSource();
-                const gain = context.createGain();
-
+                const source = audioContext.createBufferSource();
                 source.buffer = buffer;
-                source.loop = this.loop;
-
-                gain.gain.value = this.volume;
-
-                source.connect(gain);
-                gain.connect(masterGain);
+                source.connect(audioContext.destination);
 
                 source.onended = () => {
-                    if (!this.loop && this.source === source) {
+                    if (this.source === source) {
                         this.source = null;
                     }
                 };
 
                 this.source = source;
-
-                try {
-                    source.start(0);
-                } catch (error) {
-                    console.error("Duck Hunt: audio playback error:", this.src, error);
-                }
+                source.start(0);
             })
             .catch((error) => {
-                console.error("Duck Hunt: failed to play sound:", this.src, error);
+                console.error(`Unable to play sound ${this.src}:`, error);
             });
     }
 
     stop() {
+        this.playGeneration++;
+
         if (this.source) {
             try {
                 this.source.stop();
             } catch (e) {
                 // Already stopped
             }
+
             this.source = null;
         }
     }
+
 }
 
 export function pauseAudio() {
