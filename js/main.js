@@ -56,7 +56,6 @@ function startGame() {
             game.draw();
         } catch (error) {
             console.error("Duck Hunt game loop error:", error);
-            return;
         }
         requestAnimationFrame(loop);
     }
@@ -66,4 +65,3 @@ function startGame() {
 const assets = new LoadAssets(startGame);
 
 assets.loadImages();
-assets.loadSounds();

@@ -7,7 +7,7 @@ export default class Dog {
 
         this.game = game;
 
-        this.runIntro = false; // tu zmien jeżeli chesz intro!
+        this.runIntro = false;
         this.drawGrass = false;
         this.runPickUpAnimation = false;
         this.runLaughAnimation = false;
@@ -135,7 +135,7 @@ export default class Dog {
 
     laugh() {
 
-        if (!this.game.sounds.duckFlapping.paused) {
+        if (this.game.sounds.duckFlapping.source) {
             this.game.sounds.duckFlapping.stop();
         }
 

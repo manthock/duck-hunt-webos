@@ -74,6 +74,8 @@ export default class Sound {
 
         this.source = null;
 
+        this.playGeneration = 0;
+
         /*
          * Start loading asynchronously.
          * This MUST NOT block the game.
@@ -82,30 +84,20 @@ export default class Sound {
     }
 
     play() {
-        const context =
-            getAudioContext();
+        const generation = ++this.playGeneration;
 
-        if (!context) {
-            return;
-        }
+        const resumePromise =
+            audioContext.state === "suspended"
+                ? audioContext.resume()
+                : Promise.resolve();
 
-        /*
-         * AudioContext may start suspended.
-         */
-        if (
-            context.state ===
-            "suspended"
-        ) {
-            context.resume();
-        }
-
-        loadBuffer(this.src)
+        return resumePromise
+            .then(() => loadBuffer(this.src))
             .then((buffer) => {
-                if (!buffer) {
+                if (generation !== this.playGeneration) {
                     return;
                 }
 
-                // Stop previous instance
                 if (this.source) {
                     try {
                         this.source.stop();
@@ -114,49 +106,39 @@ export default class Sound {
                     }
                 }
 
-                const source = context.createBufferSource();
-
-                const gain = context.createGain();
-
+                const source = audioContext.createBufferSource();
                 source.buffer = buffer;
-
                 source.loop = this.loop;
-
-                gain.gain.value = this.volume;
-
-                source.connect(gain);
-
-                gain.connect(masterGain);
+                source.connect(masterGain);
 
                 source.onended = () => {
-                    if (!this.loop) {
-
-                        if (this.source === source) {
-                            this.source = null;
-                        }
+                    if (this.source === source) {
+                        this.source = null;
                     }
                 };
 
                 this.source = source;
-
-                try {
-                    source.start(0);
-                } catch (error) {
-                    console.error("Duck Hunt: audio playback error:", this.src, error);
-                }
+                source.start(0);
+            })
+            .catch((error) => {
+                console.error(`Unable to play sound ${this.src}:`, error);
             });
     }
 
     stop() {
+        this.playGeneration++;
+
         if (this.source) {
             try {
                 this.source.stop();
             } catch (e) {
                 // Already stopped
             }
+
             this.source = null;
         }
     }
+
 }
 
 export function pauseAudio() {
