@@ -7,7 +7,7 @@ export default class Dog {
 
         this.game = game;
 
-        this.runIntro = false; // tu zmien jeżeli chesz intro!
+        this.runIntro = false;
         this.drawGrass = false;
         this.runPickUpAnimation = false;
         this.runLaughAnimation = false;
