@@ -109,7 +109,7 @@ export default class Sound {
                 const source = audioContext.createBufferSource();
                 source.buffer = buffer;
                 source.loop = this.loop;
-                source.connect(audioContext.destination);
+                source.connect(masterGain);
 
                 source.onended = () => {
                     if (this.source === source) {
