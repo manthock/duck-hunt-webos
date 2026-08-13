@@ -1,0 +1,99 @@
+name: Build webOS IPK
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build IPK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install webOS CLI
+        run: npm install -g @webos-tools/cli
+
+      - name: Show CLI version
+        run: |
+          ares -V
+          ares-package --version
+
+      - name: Validate app
+        run: ares-package --check .
+
+      - name: Set version from Git tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          VERSION="${VERSION#v}"
+
+          echo "Building version: $VERSION"
+
+          node -e "
+            const fs = require('fs');
+            const file = 'appinfo.json';
+            const app = JSON.parse(fs.readFileSync(file, 'utf8'));
+            app.version = process.env.VERSION;
+            fs.writeFileSync(file, JSON.stringify(app, null, 4) + '\n');
+          "
+
+          cat appinfo.json
+
+      - name: Build IPK
+        run: |
+          rm -rf dist
+          mkdir -p dist
+
+          ares-package \
+            --outdir dist \
+            .
+
+          ls -lah dist
+
+      - name: Verify IPK
+        run: |
+          IPK=$(find dist -name "*.ipk" -type f | head -n 1)
+
+          if [ -z "$IPK" ]; then
+            echo "ERROR: No IPK generated"
+            exit 1
+          fi
+
+          echo "Generated: $IPK"
+
+          ares-package --info "$IPK"
+
+      - name: Upload IPK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: duck-hunt-webos
+          path: dist/*.ipk
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          IPK=$(find dist -name "*.ipk" -type f | head -n 1)
+
+          gh release create "${{ github.ref_name }}" \
+            "$IPK" \
+            --title "Duck Hunt webOS ${{ github.ref_name }}" \
+            --generate-notes
