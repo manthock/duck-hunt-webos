@@ -33,9 +33,6 @@ jobs:
           ares -V
           ares-package --version
 
-      - name: Validate app
-        run: ares-package --check .
-
       - name: Set version from Git tag
         if: startsWith(github.ref, 'refs/tags/v')
         env:
@@ -53,17 +50,40 @@ jobs:
             fs.writeFileSync(file, JSON.stringify(app, null, 4) + '\n');
           "
 
+          echo "Updated appinfo.json:"
           cat appinfo.json
+
+      - name: Validate app
+        run: |
+          ares-package --check .
+
+      - name: Prepare package
+        run: |
+          rm -rf package dist
+
+          mkdir -p package
+          mkdir -p dist
+
+          cp appinfo.json package/
+          cp index.html package/
+          cp icon.png package/
+          cp splash.png package/
+
+          cp -r audio package/
+          cp -r css package/
+          cp -r images package/
+          cp -r js package/
+
+          echo "Package contents:"
+          find package -type f | sort
 
       - name: Build IPK
         run: |
-          rm -rf dist
-          mkdir -p dist
-
           ares-package \
             --outdir dist \
-            .
+            package
 
+          echo "Generated files:"
           ls -lah dist
 
       - name: Verify IPK
@@ -75,7 +95,7 @@ jobs:
             exit 1
           fi
 
-          echo "Generated: $IPK"
+          echo "Generated IPK: $IPK"
 
           ares-package --info "$IPK"
 
