@@ -66,4 +66,3 @@ function startGame() {
 const assets = new LoadAssets(startGame);
 
 assets.loadImages();
-assets.loadSounds();
