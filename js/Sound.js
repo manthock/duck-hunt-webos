@@ -82,30 +82,17 @@ export default class Sound {
     }
 
     play() {
-        const context =
-            getAudioContext();
+        const context = getAudioContext();
 
-        if (!context) {
-            return;
-        }
+        const resume = context.state === "suspended" ? context.resume() : Promise.resolve();
 
-        /*
-         * AudioContext may start suspended.
-         */
-        if (
-            context.state ===
-            "suspended"
-        ) {
-            context.resume();
-        }
-
-        loadBuffer(this.src)
+        resume
+            .then(() => loadBuffer(this.src))
             .then((buffer) => {
                 if (!buffer) {
                     return;
                 }
 
-                // Stop previous instance
                 if (this.source) {
                     try {
                         this.source.stop();
@@ -115,25 +102,19 @@ export default class Sound {
                 }
 
                 const source = context.createBufferSource();
-
                 const gain = context.createGain();
 
                 source.buffer = buffer;
-
                 source.loop = this.loop;
 
                 gain.gain.value = this.volume;
 
                 source.connect(gain);
-
                 gain.connect(masterGain);
 
                 source.onended = () => {
-                    if (!this.loop) {
-
-                        if (this.source === source) {
-                            this.source = null;
-                        }
+                    if (!this.loop && this.source === source) {
+                        this.source = null;
                     }
                 };
 
@@ -144,6 +125,9 @@ export default class Sound {
                 } catch (error) {
                     console.error("Duck Hunt: audio playback error:", this.src, error);
                 }
+            })
+            .catch((error) => {
+                console.error("Duck Hunt: failed to play sound:", this.src, error);
             });
     }
 
