@@ -37,6 +37,7 @@ export default class Duck {
         this.duckDirection = 1;
         this.counter = 0;
         this.counterBeHit = 0;
+        this.fallingSoundScheduled = false;
 
         // fly path
         this.distanceTraveled = 0;
@@ -79,6 +80,7 @@ export default class Duck {
         this.position.y = this.gameHeight * 0.6 - 20;
         this.position.x = (Math.random() * 600) + 50;
         this.directionY = (Math.random() * 0.7) + 0.9;
+        this.fallingSoundScheduled = false;
         this.game.sounds.duckFlapping.loop = true;
         this.game.sounds.duckFlapping.play();
     }
@@ -106,7 +108,14 @@ export default class Duck {
 
         if (this.counterBeHit < 1) {
             this.duckAlive = false;
-            setTimeout(() => this.game.sounds.duckFalling.play(), 200);
+
+            if (!this.fallingSoundScheduled) {
+                this.fallingSoundScheduled = true;
+
+                setTimeout(() => {
+                    this.game.sounds.duckFalling.play();
+                }, 200);
+            }
 
             this.ducksImage = this.ducksFallImage;
             this.currentFrame = 0;
