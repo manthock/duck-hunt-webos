@@ -6,6 +6,8 @@ export default class Duck {
         this.ctx = game.ctx;
 
         this.game = game;
+        
+        this.fallingSoundTimer = null;
 
         // duck properties
         this.beHit = false;
@@ -37,6 +39,7 @@ export default class Duck {
         this.duckDirection = 1;
         this.counter = 0;
         this.counterBeHit = 0;
+        this.fallingSoundScheduled = false;
 
         // fly path
         this.distanceTraveled = 0;
@@ -76,9 +79,12 @@ export default class Duck {
 
 
     respawn() {
+        this.clearPendingTimers();
+        
         this.position.y = this.gameHeight * 0.6 - 20;
         this.position.x = (Math.random() * 600) + 50;
         this.directionY = (Math.random() * 0.7) + 0.9;
+        this.fallingSoundScheduled = false;
         this.game.sounds.duckFlapping.loop = true;
         this.game.sounds.duckFlapping.play();
     }
@@ -106,7 +112,15 @@ export default class Duck {
 
         if (this.counterBeHit < 1) {
             this.duckAlive = false;
-            setTimeout(() => this.game.sounds.duckFalling.play(), 200);
+
+            if (!this.fallingSoundScheduled) {
+                this.fallingSoundScheduled = true;
+
+                this.fallingSoundTimer = setTimeout(() => {
+                    this.fallingSoundTimer = null;
+                    this.game.sounds.duckFalling.play();
+                }, 200);
+            }
 
             this.ducksImage = this.ducksFallImage;
             this.currentFrame = 0;
@@ -125,6 +139,8 @@ export default class Duck {
         }
 
         if (this.position.y > this.gameHeight) {
+            this.clearPendingTimers();
+            
             this.beHit = false;
 
             this.counterBeHit = 0;
@@ -249,4 +265,12 @@ export default class Duck {
             this.flyPath(deltaTime);
         }
     }
+
+    clearPendingTimers() {
+        if (this.fallingSoundTimer !== null) {
+            clearTimeout(this.fallingSoundTimer);
+            this.fallingSoundTimer = null;
+        }
+    }
+
 }

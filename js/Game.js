@@ -69,6 +69,7 @@ export default class Game {
 
     newRound() {
         this.gameStats.checked = false;
+
         this.timer = 0;
 
         this.canShoot = false;
@@ -99,11 +100,9 @@ export default class Game {
     newSubRound() {
         this.dog.resetPropertiesAfterRound();
 
-        this.duck.wholeDistanceTraveled = 0;
-
-        this.duck.dropSoundActive = true;
-
         this.duck = this.ducks[Math.floor(Math.random() * 3)];
+		this.duck.wholeDistanceTraveled = 0;
+		this.duck.dropSoundActive = true;
 
         this.dog.canStartNextSubRound = false;
 
@@ -216,9 +215,9 @@ export default class Game {
     	// Clear previous frame
     	this.ctx.clearRect(0, 0, this.gameWidth, this.gameHeight);
 
-     	//GAME BACKGROUND
+      	//GAME BACKGROUND
     	if (this.backgroundImage) {
-            this.ctx.drawImage(this.backgroundImage, 0, 0, this.gameWidth, this.gameHeight);
+             this.ctx.drawImage(this.backgroundImage, 0, 0, this.gameWidth, this.gameHeight);
     	}
 
     	//DOG + DUCK
@@ -232,17 +231,17 @@ export default class Game {
     	    this.display.flyAwayButton();
 	}
 
-     	// GRASS
+      	// GRASS
     	if (this.dog.drawGrass && this.grassImage) {
-            this.ctx.drawImage(this.grassImage, 0, 0, this.gameWidth, this.gameHeight);
+             this.ctx.drawImage(this.grassImage, 0, 0, this.gameWidth, this.gameHeight);
     	}
 
-     	// HUD / SCORE / ROUND
+      	// HUD / SCORE / ROUND
     	this.display.draw();
 
-     	// Points awarded for the current duck.
+      	// Points awarded for the current duck.
     	if (this.duck.beHit && this.display.posXMouseWhenHitDuck !== null) {
-            this.display.displayPointsForDuck();
+             this.display.displayPointsForDuck();
     	}
     }
 
