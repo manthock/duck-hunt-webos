@@ -6,6 +6,8 @@ export default class Duck {
         this.ctx = game.ctx;
 
         this.game = game;
+        
+        this.fallingSoundTimer = null;
 
         // duck properties
         this.beHit = false;
@@ -77,6 +79,8 @@ export default class Duck {
 
 
     respawn() {
+        this.clearPendingTimers();
+        
         this.position.y = this.gameHeight * 0.6 - 20;
         this.position.x = (Math.random() * 600) + 50;
         this.directionY = (Math.random() * 0.7) + 0.9;
@@ -112,7 +116,8 @@ export default class Duck {
             if (!this.fallingSoundScheduled) {
                 this.fallingSoundScheduled = true;
 
-                setTimeout(() => {
+                this.fallingSoundTimer = setTimeout(() => {
+                    this.fallingSoundTimer = null;
                     this.game.sounds.duckFalling.play();
                 }, 200);
             }
@@ -134,6 +139,8 @@ export default class Duck {
         }
 
         if (this.position.y > this.gameHeight) {
+            this.clearPendingTimers();
+            
             this.beHit = false;
 
             this.counterBeHit = 0;
@@ -258,4 +265,12 @@ export default class Duck {
             this.flyPath(deltaTime);
         }
     }
+
+    clearPendingTimers() {
+        if (this.fallingSoundTimer !== null) {
+            clearTimeout(this.fallingSoundTimer);
+            this.fallingSoundTimer = null;
+        }
+    }
+
 }
