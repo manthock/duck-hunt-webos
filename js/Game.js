@@ -204,11 +204,7 @@ export default class Game {
     }
 
     exitGame() {
-        if (window.webOS && typeof webOS.platformBack === "function") {
-            webOS.platformBack();
-            return;
-	}
-	window.close();
+        webOS.platformBack();
     }
 
     draw() {
