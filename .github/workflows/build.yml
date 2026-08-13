@@ -100,7 +100,7 @@ jobs:
           ares-package --info "$IPK"
 
       - name: Upload IPK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: duck-hunt-webos
           path: dist/*.ipk
