@@ -99,11 +99,9 @@ export default class Game {
     newSubRound() {
         this.dog.resetPropertiesAfterRound();
 
-        this.duck.wholeDistanceTraveled = 0;
-
-        this.duck.dropSoundActive = true;
-
         this.duck = this.ducks[Math.floor(Math.random() * 3)];
+		this.duck.wholeDistanceTraveled = 0;
+		this.duck.dropSoundActive = true;
 
         this.dog.canStartNextSubRound = false;
 
