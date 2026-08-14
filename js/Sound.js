@@ -10,7 +10,7 @@ function getAudioContext() {
     if (!audioContext) {
         audioContext = new AudioContext();
         masterGain = audioContext.createGain();
-        masterGain.gain.value = 0.5;
+        masterGain.gain.value = 0.25;
         masterGain.connect(audioContext.destination);
     }
     return audioContext;
@@ -69,8 +69,6 @@ export default class Sound {
         this.src = src;
 
         this.loop = loop;
-
-        this.volume = 1;
 
         this.source = null;
 
