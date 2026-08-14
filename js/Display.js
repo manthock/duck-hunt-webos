@@ -158,24 +158,27 @@ export default class Display {
     }
 
     draw() {
+
         if (this.game.gamestate === 2) {
             this.menuScreen();
             return;
         }
-        
+
         this.showNumberRound();
         this.showScore();
         this.showAvailableShoots();
         this.showSubRoundsScore();
-        
-        if (this.game.display.displayCurrentRound) {
+
+        if (this.game.perfectRound) {
+            this.perfectButton();
+        } else if (this.game.display.displayCurrentRound) {
             this.newRoundButton();
         }
-        
+
         if (this.game.gamestate === 3) {
             this.gameOverButton();
         }
-        
+
         if (this.game.gamestate === 4) {
             this.pauseMenuScreen();
         }

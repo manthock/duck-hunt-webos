@@ -24,6 +24,8 @@ export default class Game {
 
         this.sounds = new Sounds();
 
+        this.perfectSoundPlayed = false;
+
         this.input = new Input(this, document.querySelector("#canvas"));
 
         this.gameStats = new GameStats(this);
@@ -79,6 +81,7 @@ export default class Game {
         this.display.displayCurrentRound = true;
 
         this.perfectRound = false;
+        this.perfectSoundPlayed = false;
 
         this.gameStats.update();
 
@@ -89,7 +92,6 @@ export default class Game {
 
         this.gameStats.currentSubRound = 0;
         this.gameStats.missHits = 0;
-
         this.gameStats.round++;
 
         this.runIntro();
@@ -129,30 +131,35 @@ export default class Game {
     showPerfectButton(deltaTime) {
         this.timer += deltaTime / 16;
 
-        this.display.perfectButton();
-
         if (this.timer > 100) {
             this.newRound();
         }
     }
 
     summaryRound(deltaTime) {
+
         if (this.gameStats.currentSubRound !== 10) {
             this.newSubRound();
-        } else {
-            if (!this.gameStats.checked) {
-                this.gameStats.summaryRounds();
-            }
+            return;
+        }
 
-            if (this.perfectRound) {
+        if (!this.gameStats.checked) {
+            this.gameStats.summaryRounds();
+        }
+
+        if (this.perfectRound) {
+
+            if (!this.perfectSoundPlayed) {
+                this.perfectSoundPlayed = true;
                 this.sounds.perfect.play();
-                this.showPerfectButton(deltaTime);
-                return;
             }
 
-            if (this.gamestate !== GAMESTATE.GAMEOVER) {
-                this.newRound();
-            }
+            this.showPerfectButton(deltaTime);
+            return;
+        }
+
+        if (this.gamestate !== GAMESTATE.GAMEOVER) {
+            this.newRound();
         }
     }
 
